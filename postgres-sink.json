@@ -1,0 +1,15 @@
+{
+    "name": "postgres-sink-test",
+    "config": {
+        "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+        "connection.url": "jdbc:postgresql://localhost:5432/mahasiswa",
+        "connection.username": "postgres",
+        "connection.password": "postgres",
+        "topics": "db_mahasiswa.Mahasiswa.dbo.Siswa",
+        "insert.mode": "upsert",
+        "pk.mode": "record_key",
+        "table.name.format": "Siswa",
+        "primary.key.mode": "record_key",
+        "primary.key.fields": "id_siswa"
+    }
+}

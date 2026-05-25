@@ -1,0 +1,19 @@
+{
+    "name": "sqlserver-mahasiswa-source",
+    "config": {
+        "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
+        "tasks.max": "1",
+        "database.hostname": "100.99.143.55",
+        "database.port": "1433",
+        "database.user": "debezium_user",
+        "database.password": "Debezium@2025!",
+        "database.names": "Mahasiswa",
+        "topic.prefix": "db_mahasiswa",
+        "table.include.list": "dbo.Siswa",
+        "snapshot.mode": "initial",
+        "database.encrypt": "false",
+        "database.trustServerCertificate": "false",
+        "schema.history.internal.kafka.bootstrap.servers": "localhost:9092",
+        "schema.history.internal.kafka.topic": "schema-history-mahasiswa"
+    }
+}
