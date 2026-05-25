@@ -1,0 +1,70 @@
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - debezium-network
+
+  kafka:
+    image: quay.io/debezium/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    depends_on:
+      - zookeeper
+    networks:
+      - debezium-network
+
+  kafka-connect:
+    build: .
+    image: my-debezium-connect:latest
+    container_name: kafka-connect
+    network_mode: host
+    environment:
+      - BOOTSTRAP_SERVERS=localhost:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - CLASSPATH=/kafka/libs/*
+    depends_on:
+      - kafka
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mahasiswa
+    volumes:
+      - ./init.postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - debezium-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME=connect
+      - KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS=http://localhost:8083
+    depends_on:
+      - kafka
+      - kafka-connect
+    networks:
+      - debezium-network
+
+networks:
+  debezium-network:
+    driver: bridge
